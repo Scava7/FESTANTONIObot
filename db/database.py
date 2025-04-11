@@ -12,7 +12,7 @@ def init_db():
 def save_volunteer(user):
     with get_connection() as conn:
         conn.execute("""
-            INSERT OR IGNORE INTO volunteers (telegram_id, first_name, last_name, username)
+            INSERT OR IGNORE INTO volontari (telegram_id, first_name, last_name, username)
             VALUES (?, ?, ?, ?)
         """, (user.id, user.first_name, user.last_name, user.username))
         conn.commit()
