@@ -1,1 +1,25 @@
-/config.py
+# File Python compilati
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Ambienti virtuali (se li usi)
+env/
+venv/
+
+# File di configurazione locali e segreti
+config.py
+.env
+
+# Database locali
+*.sqlite
+*.db
+
+# File temporanei e di backup
+*.log
+*.bak
+*.swp
+.DS_Store
+
+# PythonAnywhere editor e cron
+*.py~ 
