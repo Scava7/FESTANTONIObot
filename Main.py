@@ -4,6 +4,8 @@ from config import BOT_TOKEN
 from db.database import init_db
 from handlers.start import start
 
+#test
+
 def main():
     # Inizializza il database
     init_db()
