@@ -3,6 +3,9 @@ from telegram.request import HTTPXRequest  # <-- Importa il gestore con timeout
 from config import BOT_TOKEN
 from db.database import init_db
 from handlers.start import start
+from handlers.ping import ping_admin
+from datetime import timedelta
+
 
 #test
 
@@ -15,6 +18,10 @@ def main():
 
     # Costruzione del bot con timeout personalizzati
     app = ApplicationBuilder().token(BOT_TOKEN).request(request).build()
+    
+    # Aggiunta job ricorrente ogni 2 ore
+    app.job_queue.run_repeating(ping_admin, interval=timedelta(hours=2), first=10)
+
 
     # Aggiunta handler /start
     app.add_handler(CommandHandler("start", start))
