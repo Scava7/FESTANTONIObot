@@ -3,7 +3,7 @@ from telegram.request import HTTPXRequest  # <-- Importa il gestore con timeout
 from config import BOT_TOKEN
 from db.database import init_db
 from handlers.start import start
-from handlers.ping import ping_admin
+from handlers.ping import ping_admin, ping_ok
 from datetime import timedelta
 from handlers.unknown import handle_unknown
 from telegram.ext import MessageHandler, filters
@@ -35,6 +35,7 @@ def main():
     # Aggiunta handler /start
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("getdb", send_db))
+    app.add_handler(CommandHandler("ping", ping_ok))
     app.add_handler(MessageHandler(filters.ALL, handle_unknown))
 
    
