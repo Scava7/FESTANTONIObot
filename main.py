@@ -16,6 +16,14 @@ from telegram.ext import CommandHandler
 #test
 
 def main():
+
+    import os
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+    import sys
+    sys.stderr = open("error.log", "a")
+
+
     # Inizializza il database
     init_db()
 
