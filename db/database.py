@@ -21,3 +21,24 @@ def volunteer_exists(user_id):
     with get_connection() as conn:
         cursor = conn.execute("SELECT 1 FROM volontari WHERE telegram_id = ?", (user_id,))
         return cursor.fetchone() is not None
+
+def safe_add_column(column_name, column_def):
+    with get_connection() as conn:
+        cursor = conn.execute("PRAGMA table_info(volontari)")
+        columns = [row[1] for row in cursor.fetchall()]
+        if column_name not in columns:
+            conn.execute(f"ALTER TABLE volontari ADD COLUMN {column_name} {column_def}")
+            conn.commit()
+
+def update_schema():
+    safe_add_column("comandi_usati", "INTEGER DEFAULT 0")
+    safe_add_column("messaggi_non_riconosciuti", "INTEGER DEFAULT 0")
+
+def increment_command_count(user_id):
+    with get_connection() as conn:
+        conn.execute("""
+            UPDATE volontari
+            SET comandi_usati = comandi_usati + 1
+            WHERE telegram_id = ?
+        """, (user_id,))
+        conn.commit()

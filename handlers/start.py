@@ -1,11 +1,14 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-import asyncio 
 from config import ADMIN_CHAT_ID
-from db.database import save_volunteer, volunteer_exists
+from db.database import save_volunteer, volunteer_exists, increment_command_count
+import asyncio
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
+
+    # Incrementa il contatore dei comandi usati
+    increment_command_count(user.id)
 
     if volunteer_exists(user.id):
         reply = await update.message.reply_text("Utente già registrato. Ti informerò io quando saranno disponibili altre informazioni o comandi.")
