@@ -16,3 +16,8 @@ def save_volunteer(user):
             VALUES (?, ?, ?, ?)
         """, (user.id, user.first_name, user.last_name, user.username))
         conn.commit()
+
+def volunteer_exists(user_id):
+    with get_connection() as conn:
+        cursor = conn.execute("SELECT 1 FROM volontari WHERE telegram_id = ?", (user_id,))
+        return cursor.fetchone() is not None
