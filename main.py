@@ -5,6 +5,7 @@ import traceback
 import telegram
 from db.database import init_db, update_schema
 from handlers.start import start
+from handlers.receive_db import receive_db
 from handlers.ping import ping_admin, ping_ok
 from datetime import timedelta
 from handlers.unknown import handle_unknown
@@ -54,6 +55,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("getdb", send_db))
     app.add_handler(CommandHandler("ping", ping_ok))
+    app.add_handler(MessageHandler(filters.Document.ALL, receive_db))
     app.add_handler(MessageHandler(filters.ALL, handle_unknown))
 
    
