@@ -20,6 +20,6 @@ async def ping_admin(context: ContextTypes.DEFAULT_TYPE):
 # Risposta al comando /ping
 async def ping_ok(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id == ADMIN_CHAT_ID:
-        await update.message.reply_text("✅ Bot operativo")
+        await update.message.reply_text("✅ Ping OK!")
     else:
         await update.message.reply_text("Non sei autorizzato a usare questo comando.")
