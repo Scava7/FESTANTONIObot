@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from db.database import increment_command_count
-from constants import COLUMN
+from constants.constants import COLUMN
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
@@ -13,6 +13,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "👋 Ciao! Benvenuto nel bot di FestAntonio.\n\n"
         "Al momento puoi:\n"
         "• Registrarti come volontario con il comando /registrami\n"
-        "• Contattarmi qui se hai dubbi o proposte\n\n"
+        "• Contattarmi qui se hai dubbi o proposte /scrivimi\n\n"
         "Altre funzionalità verranno aggiunte nei prossimi giorni!"
     )

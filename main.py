@@ -21,6 +21,8 @@ from handlers.getdb import send_db
 from handlers.ping import ping_admin, ping_ok
 from handlers.start import start
 from handlers.availability import availability, handle_availability_response
+from handlers.contact_admin import scrivimi
+from handlers.texts import handle_text_message
 
 def main():
 
@@ -51,12 +53,15 @@ def main():
     # Vari handler
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("registrami", register_new_volunteer))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_name_input))
+    #app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_name_input))
     app.add_handler(CommandHandler("getdb", send_db))
     app.add_handler(CommandHandler("ping", ping_ok))
     app.add_handler(MessageHandler(filters.Document.ALL, receive_db))
-    app.add_handler(CommandHandler("disponibilita", availability))
-    app.add_handler(CallbackQueryHandler(handle_availability_response))
+    #app.add_handler(CommandHandler("disponibilita", availability))
+    #app.add_handler(CallbackQueryHandler(handle_availability_response))
+    app.add_handler(CommandHandler("scrivimi", scrivimi))
+   # app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_user_message))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_message))
     app.add_handler(MessageHandler(filters.ALL, handle_unknown))
 
    

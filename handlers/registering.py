@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from config import ADMIN_CHAT_ID
 from db.database import volunteer_exists, increment_command_count
-from constants import COLUMN
+from constants.constants import COLUMN
 import asyncio
 
 async def register_new_volunteer(update: Update, context: ContextTypes.DEFAULT_TYPE):

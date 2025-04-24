@@ -1,7 +1,7 @@
 import sqlite3
 from config import DB_PATH
 import os
-from constants import COLUMN as COLUMN
+from constants.constants import COLUMN
 
 
 def get_connection():
@@ -14,6 +14,17 @@ def init_db():
     with get_connection() as conn:
         with open("db/schema.sql", "r") as f:
             conn.executescript(f.read())
+        # Crea anche la tabella disponibilita se non esiste
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS disponibilita (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                telegram_id INTEGER NOT NULL,
+                giorno TEXT NOT NULL,
+                fascia TEXT NOT NULL,
+                UNIQUE(telegram_id, giorno, fascia)
+            )
+        """)
+        conn.commit()
 
 
 def save_volunteer(user, name=None, last_name=None):
@@ -65,4 +76,28 @@ def update_schema():
     safe_add_column(COLUMN.NAME, "TEXT")
     safe_add_column(COLUMN.LAST_NAME, "TEXT")
     safe_add_column(COLUMN.USERNAME, "TEXT")
-    safe_add_column(COLUMN.TELEGRAM_ID, "INTEGER")
+
+
+def save_availability(user_id, giorno, fascia):
+    with get_connection() as conn:
+        conn.execute("""
+            INSERT OR IGNORE INTO disponibilita (telegram_id, giorno, fascia)
+            VALUES (?, ?, ?)
+        """, (user_id, giorno, fascia))
+        conn.commit()
+
+def get_user_info(user_id):
+    with get_connection() as conn:
+        cursor = conn.execute(f"""
+            SELECT {COLUMN.NAME}, {COLUMN.LAST_NAME}, {COLUMN.USERNAME}
+            FROM volontari
+            WHERE telegram_id = ?
+        """, (user_id,))
+        row = cursor.fetchone()
+        if row:
+            return {
+                "name": row[0],
+                "last_name": row[1],
+                "username": row[2]
+            }
+        return {}
