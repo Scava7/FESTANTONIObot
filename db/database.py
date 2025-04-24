@@ -31,14 +31,24 @@ def safe_add_column(column_name, column_def):
             conn.commit()
 
 def update_schema():
-    safe_add_column("comandi_usati", "INTEGER DEFAULT 0")
+    safe_add_column("start_cmd_used", "INTEGER DEFAULT 0")
     safe_add_column("messaggi_non_riconosciuti", "INTEGER DEFAULT 0")
 
 def increment_command_count(user_id):
     with get_connection() as conn:
         conn.execute("""
             UPDATE volontari
-            SET comandi_usati = comandi_usati + 1
+            SET start_cmd_used = start_cmd_used + 1
+            WHERE telegram_id = ?
+        """, (user_id,))
+        conn.commit()
+
+
+def increment_unknown_count(user_id):
+    with get_connection() as conn:
+        conn.execute("""
+            UPDATE volontari
+            SET messaggi_non_riconosciuti = messaggi_non_riconosciuti + 1
             WHERE telegram_id = ?
         """, (user_id,))
         conn.commit()
