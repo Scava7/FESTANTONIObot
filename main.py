@@ -21,7 +21,7 @@ def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     import sys
-    sys.stderr = open("error.log", "a")
+    #sys.stderr = open("error.log", "a")
 
 
     # Inizializza il database
