@@ -72,6 +72,7 @@ def safe_add_column(column_name, column_def):
 def update_schema():
     safe_add_column(COLUMN.N_CMD_START, "INTEGER DEFAULT 0")
     safe_add_column(COLUMN.N_CMD_REGISTR, "INTEGER DEFAULT 0")
+    safe_add_column(COLUMN.N_CMD_TEXTME, "INTEGER DEFAULT 0")
     safe_add_column(COLUMN.UNKNOWN, "INTEGER DEFAULT 0")
     safe_add_column(COLUMN.NAME, "TEXT")
     safe_add_column(COLUMN.LAST_NAME, "TEXT")
