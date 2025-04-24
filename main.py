@@ -1,6 +1,8 @@
 from telegram.ext import ApplicationBuilder, CommandHandler
 from telegram.request import HTTPXRequest  # <-- Importa il gestore con timeout
 from config import BOT_TOKEN
+import traceback
+import telegram
 from db.database import init_db, update_schema
 from handlers.start import start
 from handlers.ping import ping_admin, ping_ok
@@ -21,7 +23,7 @@ def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     import sys
-    #sys.stderr = open("error.log", "a")
+    sys.stderr = open("error.log", "a")
 
 
     # Inizializza il database
@@ -54,4 +56,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        with open("error.log", "a") as log:
+            log.write(traceback.format_exc())
+
+        # Invia il file di log a te (sostituisci il tuo ID)
+        ADMIN_ID = 123456789  # <-- METTI IL TUO CHAT ID QUI
+        bot = telegram.Bot(token=BOT_TOKEN)
+        with open("error.log", "rb") as log_file:
+            bot.send_document(chat_id=ADMIN_ID, document=log_file, filename="error.log")
