@@ -9,6 +9,7 @@ venv/
 
 # File di configurazione locali e segreti
 config.py
+config_FESTANTONIObot.py
 .env
 
 # Database locali
@@ -20,6 +21,7 @@ config.py
 *.bak
 *.swp
 .DS_Store
+*.zip
 
 # PythonAnywhere editor e cron
 *.py~ 
