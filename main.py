@@ -12,8 +12,8 @@ from datetime import time, timezone, timedelta
 from config import BOT_TOKEN, ADMIN_CHAT_ID
 
 #handlers
-from handlers.send_daily_db import send_daily_db
-from handlers.complete_registration import handle_name_input
+from db.send_daily_db import send_daily_db
+from handlers.handle_name.complete_registration import handle_name_input
 from handlers.unknown import handle_unknown
 from handlers.registering import register_new_volunteer
 from handlers.receive_db import receive_db

@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from handlers.contact_admin import handle_user_message
-from handlers.complete_registration import handle_name_input
+from handlers.handle_name.complete_registration import handle_name_input
 from handlers.unknown import handle_unknown
 
 async def handle_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
