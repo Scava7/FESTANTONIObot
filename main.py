@@ -1,6 +1,6 @@
 from telegram.request import HTTPXRequest  # <-- Importa il gestore con timeout
 import telegram
-from telegram.ext import MessageHandler, filters, CommandHandler, ApplicationBuilder
+from telegram.ext import MessageHandler, filters, CommandHandler, ApplicationBuilder, CallbackQueryHandler
 
 import traceback
 
@@ -53,12 +53,12 @@ def main():
     # Vari handler
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("registrami", register_new_volunteer))
-    #app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_name_input))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_name_input))
     app.add_handler(CommandHandler("getdb", send_db))
     app.add_handler(CommandHandler("ping", ping_ok))
     app.add_handler(MessageHandler(filters.Document.ALL, receive_db))
-    #app.add_handler(CommandHandler("disponibilita", availability))
-    #app.add_handler(CallbackQueryHandler(handle_availability_response))
+    app.add_handler(CommandHandler("disponibilita", availability))
+    app.add_handler(CallbackQueryHandler(handle_availability_response))
     app.add_handler(CommandHandler("scrivimi", scrivimi))
    # app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_user_message))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_message))

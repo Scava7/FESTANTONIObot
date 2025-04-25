@@ -14,16 +14,6 @@ def init_db():
     with get_connection() as conn:
         with open("db/schema.sql", "r") as f:
             conn.executescript(f.read())
-        # Crea anche la tabella disponibilita se non esiste
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS disponibilita (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                telegram_id INTEGER NOT NULL,
-                giorno TEXT NOT NULL,
-                fascia TEXT NOT NULL,
-                UNIQUE(telegram_id, giorno, fascia)
-            )
-        """)
         conn.commit()
 
 
@@ -72,11 +62,23 @@ def safe_add_column(column_name, column_def):
 def update_schema():
     safe_add_column(COLUMN.N_CMD_START, "INTEGER DEFAULT 0")
     safe_add_column(COLUMN.N_CMD_REGISTR, "INTEGER DEFAULT 0")
-    safe_add_column(COLUMN.N_CMD_TEXTME, "INTEGER DEFAULT 0")
     safe_add_column(COLUMN.UNKNOWN, "INTEGER DEFAULT 0")
     safe_add_column(COLUMN.NAME, "TEXT")
     safe_add_column(COLUMN.LAST_NAME, "TEXT")
     safe_add_column(COLUMN.USERNAME, "TEXT")
+
+    # Crea anche la tabella disponibilita se non esiste
+    with get_connection() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS disponibilita (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                telegram_id INTEGER NOT NULL,
+                giorno TEXT NOT NULL,
+                fascia TEXT NOT NULL,
+                UNIQUE(telegram_id, giorno, fascia)
+            )
+        """)
+        conn.commit()
 
 
 def save_availability(user_id, giorno, fascia):
@@ -86,6 +88,7 @@ def save_availability(user_id, giorno, fascia):
             VALUES (?, ?, ?)
         """, (user_id, giorno, fascia))
         conn.commit()
+
 
 def get_user_info(user_id):
     with get_connection() as conn:
@@ -102,3 +105,13 @@ def get_user_info(user_id):
                 "username": row[2]
             }
         return {}
+
+
+def get_user_availabilities(user_id):
+    with get_connection() as conn:
+        cursor = conn.execute("""
+            SELECT giorno, fascia FROM disponibilita
+            WHERE telegram_id = ?
+            ORDER BY giorno, fascia
+        """, (user_id,))
+        return cursor.fetchall()

@@ -7,3 +7,5 @@ class COLUMN:
     LAST_NAME = "last_name"
     USERNAME = "telegram_username"
     TELEGRAM_ID = "telegram_id"
+    DISP_GIORNO = "giorno"
+    DISP_FASCIA = "fascia"
