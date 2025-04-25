@@ -1,7 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from datetime import date, timedelta
-from db.database import save_availability, get_user_availabilities
+from db.database_operations import save_availability, get_user_availabilities
 
 # Date e fasce orarie
 START_DATE = date(2024, 6, 7)
@@ -45,3 +45,21 @@ async def handle_availability_response(update: Update, context: ContextTypes.DEF
 
     elif data == "ignore":
         await query.answer()
+
+
+
+async def availability(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = []
+
+    current = START_DATE
+    while current <= END_DATE:
+        day_buttons = [
+            InlineKeyboardButton(slot, callback_data=f"disp|{current}|{slot}")
+            for slot in SLOTS
+        ]
+        keyboard.append([InlineKeyboardButton(f"🗓️ {current.strftime('%A %d %B')}", callback_data="ignore")])
+        keyboard.append(day_buttons)
+        current += timedelta(days=1)
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("Scegli quando sei disponibile:", reply_markup=reply_markup)

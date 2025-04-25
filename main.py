@@ -4,7 +4,8 @@ from telegram.ext import MessageHandler, filters, CommandHandler, ApplicationBui
 
 import traceback
 
-from db.database import init_db, update_schema
+from db.database_operations import init_db
+from db.database_checks import update_schema
 
 from datetime import time, timezone, timedelta
 
@@ -20,7 +21,7 @@ from handlers.receive_db import receive_db
 from handlers.getdb import send_db
 from handlers.ping import ping_admin, ping_ok
 from handlers.start import start
-from handlers.availability import availability, handle_availability_response
+from handlers.availability import handle_availability_response, availability
 from handlers.contact_admin import scrivimi
 from handlers.texts import handle_text_message
 
@@ -30,6 +31,7 @@ def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     import sys
+    open("error.log", "w").close()  # Pialla il file
     sys.stderr = open("error.log", "a")
 
     # Inizializza il database

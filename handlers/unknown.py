@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from db.database import increment_unknown_count
+from db.database_operations import increment_unknown_count
 import asyncio
 
 async def handle_unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):

@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from db.database import save_volunteer
+from db.database_operations import save_volunteer
 from config import ADMIN_CHAT_ID
 
 async def handle_name_input(update: Update, context: ContextTypes.DEFAULT_TYPE):

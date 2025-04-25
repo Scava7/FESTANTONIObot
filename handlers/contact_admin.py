@@ -1,16 +1,16 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from config import ADMIN_CHAT_ID
-from db.database import get_user_info
-from db.database import increment_command_count
-from constants.constants import COLUMN
+from db.database_operations import get_user_info
+from db.database_operations import increment_command_count
+from constants.constants import COLUMN_VOL
 
 
 # Comando /scrivimi
 async def scrivimi(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     # Incrementa il contatore dei comandi /scrivimi
-    increment_command_count(user.id, COLUMN.N_CMD_TEXTME)
+    increment_command_count(user.id, COLUMN_VOL.N_CMD_TEXTME)
 
     context.user_data["awaiting_message"] = True
     await update.message.reply_text("✉️ Scrivimi il messaggio che vuoi mandare all'organizzatore.")

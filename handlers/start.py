@@ -1,13 +1,13 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from db.database import increment_command_count
-from constants.constants import COLUMN
+from db.database_operations import increment_command_count
+from constants.constants import COLUMN_VOL
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
 
     # Incrementa il contatore dei comandi /start
-    increment_command_count(user.id, COLUMN.N_CMD_START)
+    increment_command_count(user.id, COLUMN_VOL.N_CMD_START)
 
     await update.message.reply_text(
         "👋 Ciao! Benvenuto nel bot di FestAntonio.\n\n"
