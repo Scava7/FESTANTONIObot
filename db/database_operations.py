@@ -58,6 +58,14 @@ def save_availability(user_id, giorno, fascia):
         """, (user_id, giorno, fascia))
         conn.commit()
 
+def delete_availabilities_for_user(user_id):
+    with get_connection() as conn:
+        conn.execute(f"""
+            DELETE FROM disponibilita
+            WHERE {COLUMN_DISP.TELEGRAM_ID} = ?
+        """, (user_id,))
+        conn.commit()
+
 
 def get_user_info(user_id):
     with get_connection() as conn:
@@ -96,3 +104,4 @@ def get_all_availabilities_with_names():
             ORDER BY d.{COLUMN_DISP.DISP_GIORNO}, d.{COLUMN_DISP.DISP_FASCIA}
         """)
         return cursor.fetchall()
+

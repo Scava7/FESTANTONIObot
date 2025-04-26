@@ -62,7 +62,6 @@ def main():
     app.add_handler(CommandHandler("disponibilita", availability))
     app.add_handler(CallbackQueryHandler(handle_availability_response))
     app.add_handler(CommandHandler("scrivimi", scrivimi))
-   # app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_user_message))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_message))
     app.add_handler(MessageHandler(filters.ALL, handle_unknown))
 
