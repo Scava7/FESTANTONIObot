@@ -35,6 +35,10 @@ def update_volontari_table():
     # Aggiungi tutte le colonne necessarie
     safe_add_column("volontari", COLUMN_VOL.N_CMD_START, "INTEGER DEFAULT 0")
     safe_add_column("volontari", COLUMN_VOL.N_CMD_REGISTR, "INTEGER DEFAULT 0")
+    safe_add_column("volontari", COLUMN_VOL.N_CMD_DISP, "INTEGER DEFAULT 0")
+    safe_add_column("volontari", COLUMN_VOL.N_CMD_MYSHIFT, "INTEGER DEFAULT 0")
+    safe_add_column("volontari", COLUMN_VOL.N_CMD_ALLSHIFT, "INTEGER DEFAULT 0")
+    safe_add_column("volontari", COLUMN_VOL.N_CMD_CMDLIST, "INTEGER DEFAULT 0")
     safe_add_column("volontari", COLUMN_VOL.UNKNOWN, "INTEGER DEFAULT 0")
     safe_add_column("volontari", COLUMN_VOL.NAME, "TEXT")
     safe_add_column("volontari", COLUMN_VOL.LAST_NAME, "TEXT")

@@ -4,6 +4,8 @@ from telegram.constants import ParseMode
 from datetime import date, timedelta
 from db.database_operations import save_availability, get_user_availabilities, delete_availabilities_for_user
 from handlers.contact_admin import notify_admin_availability_confirmed
+from db.database_operations import increment_command_count
+from constants.constants import COLUMN_VOL
 
 # Date e fasce orarie
 START_DATE = date(2025, 6, 7)
@@ -41,6 +43,9 @@ MESI_ANNO = {
 
 async def availability(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
+
+    # Incrementa il contatore dei comandi /registrami
+    increment_command_count(user.id, COLUMN_VOL.N_CMD_DISP)
 
     context.user_data["pending_availability"] = []
 
