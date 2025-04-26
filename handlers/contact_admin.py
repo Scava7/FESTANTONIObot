@@ -47,12 +47,15 @@ async def handle_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 async def notify_admin_availability_confirmed(bot, user_id):
     user_info = get_user_info(user_id)
-    nome = user_info.get("name", "Nome mancante")
-    cognome = user_info.get("last_name", "Cognome mancante")
-    username = user_info.get("username", "Nessun username")
+
+    nome = user_info.get("name") or "Nome mancante"
+    cognome = user_info.get("last_name") or "Cognome mancante"
+    username_raw = user_info.get("username")
+
+    username = f"@{username_raw}" if username_raw else "Nessun username"
 
     text = (
-        f"✅ {nome} {cognome} (@{username}) ha confermato la sua disponibilità."
+        f"✅ {nome} {cognome} ({username}) ha confermato la sua disponibilità."
     )
 
     await bot.send_message(chat_id=ADMIN_CHAT_ID, text=text)

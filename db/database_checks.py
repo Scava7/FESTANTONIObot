@@ -38,8 +38,9 @@ def update_disponibilita_table():
         conn.commit()
 
     safe_add_column("disponibilita", COLUMN_DISP.TELEGRAM_ID, "INTEGER NOT NULL")
-    safe_add_column("disponibilita", COLUMN_DISP.DISP_GIORNO, "TEXT NOT NULL")
-    safe_add_column("disponibilita", COLUMN_DISP.DISP_FASCIA, "TEXT NOT NULL")
+    safe_add_column("disponibilita", COLUMN_DISP.DISP_GIORNO, "TEXT")
+    safe_add_column("disponibilita", COLUMN_DISP.DISP_FASCIA, "TEXT")
+    safe_add_column("disponibilita", COLUMN_DISP.DISP_NOMECOGNOME, "TEXT")
 
 
 def update_schema():

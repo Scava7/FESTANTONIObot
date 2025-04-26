@@ -1,6 +1,7 @@
 from telegram.request import HTTPXRequest  # <-- Importa il gestore con timeout
 import telegram
 from telegram.ext import MessageHandler, filters, CommandHandler, ApplicationBuilder, CallbackQueryHandler
+from config import ENABLE_TERMINAL_DEBUG
 
 import traceback
 
@@ -21,9 +22,11 @@ from handlers.receive_db import receive_db
 from handlers.getdb import send_db
 from handlers.ping import ping_admin, ping_ok
 from handlers.start import start
+from handlers.get_commands import lista_comandi
 from handlers.availability import handle_availability_response, availability
 from handlers.contact_admin import scrivimi
 from handlers.texts import handle_text_message
+from handlers.cmd_not_available import not_available_yet
 
 def main():
 
@@ -54,6 +57,9 @@ def main():
 
     # Vari handler
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("lista_comandi", lista_comandi))
+    app.add_handler(CommandHandler("miei_turni", not_available_yet))
+    app.add_handler(CommandHandler("tutti_turni", not_available_yet))
     app.add_handler(CommandHandler("registrami", register_new_volunteer))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_name_input))
     app.add_handler(CommandHandler("getdb", send_db))
@@ -65,8 +71,9 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_message))
     app.add_handler(MessageHandler(filters.ALL, handle_unknown))
 
-   
-    print("Bot avviato.")
+    if ENABLE_TERMINAL_DEBUG:
+        print("Bot avviato.")
+
     app.run_polling()
 
 

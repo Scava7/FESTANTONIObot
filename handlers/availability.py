@@ -5,33 +5,54 @@ from db.database_operations import save_availability, get_user_availabilities, d
 from handlers.contact_admin import notify_admin_availability_confirmed
 
 # Date e fasce orarie
-START_DATE = date(2024, 6, 7)
-END_DATE = date(2024, 6, 14)
+START_DATE = date(2025, 6, 7)
+END_DATE = date(2025, 6, 14)
 SLOTS = ["17:30–21:00", "20:30–23:30"]
 
 # Timeout per conferma disponibilità (secondi)
 AVAILABILITY_TIMEOUT = 20 * 60  # 20 minuti
 
+# Dizionario manuale per la traduzione
+GIONRI_SETTIMANA = {
+    "Monday": "Lunedì",
+    "Tuesday": "Martedì",
+    "Wednesday": "Mercoledì",
+    "Thursday": "Giovedì",
+    "Friday": "Venerdì",
+    "Saturday": "Sabato",
+    "Sunday": "Domenica"
+}
+
+MESI_ANNO = {
+    "January": "Gennaio",
+    "February": "Febbraio",
+    "March": "Marzo",
+    "April": "Aprile",
+    "May": "Maggio",
+    "June": "Giugno",
+    "July": "Luglio",
+    "August": "Agosto",
+    "September": "Settembre",
+    "October": "Ottobre",
+    "November": "Novembre",
+    "December": "Dicembre"
+}
+
 async def availability(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
 
-    # Inizializza dati temporanei
     context.user_data["pending_availability"] = []
     context.user_data["availability_message_id"] = None
 
-    # Costruisci tastiera
     keyboard = generate_availability_keyboard()
 
-    # Invia il messaggio
     message = await update.message.reply_text(
         "Seleziona i turni in cui sei disponibile.\n\nQuando hai finito, premi CONFERMA oppure ANNULLA.",
         reply_markup=keyboard
     )
 
-    # Salva ID del messaggio
     context.user_data["availability_message_id"] = message.message_id
 
-    # Imposta un timer automatico per l'annullamento
     context.job_queue.run_once(cancel_availability, AVAILABILITY_TIMEOUT, chat_id=update.effective_chat.id, name=str(user.id))
 
 
@@ -40,19 +61,35 @@ async def handle_availability_response(update: Update, context: ContextTypes.DEF
     data = query.data
     user = query.from_user
 
+    if "pending_availability" not in context.user_data:
+        context.user_data["pending_availability"] = []
+
+    pending = context.user_data["pending_availability"]
+
     if data.startswith("disp|"):
         _, giorno, fascia = data.split("|")
-
-        if "pending_availability" not in context.user_data:
-            context.user_data["pending_availability"] = []
-
         selection = (giorno, fascia)
 
-        # Se già selezionato, lo togliamo (toggle)
-        if selection in context.user_data["pending_availability"]:
-            context.user_data["pending_availability"].remove(selection)
+        if selection in pending:
+            pending.remove(selection)
         else:
-            context.user_data["pending_availability"].append(selection)
+            pending.append(selection)
+
+        await update_pending_availability_message(query, context)
+
+    elif data.startswith("day|"):
+        _, giorno = data.split("|")
+        selection1 = (giorno, "17:30–21:00")
+        selection2 = (giorno, "20:30–23:30")
+
+        if selection1 in pending and selection2 in pending:
+            pending.remove(selection1)
+            pending.remove(selection2)
+        else:
+            if selection1 not in pending:
+                pending.append(selection1)
+            if selection2 not in pending:
+                pending.append(selection2)
 
         await update_pending_availability_message(query, context)
 
@@ -73,14 +110,33 @@ def generate_availability_keyboard(selected=None):
     keyboard = []
     current = START_DATE
     while current <= END_DATE:
+        giorno_str = str(current)
+
+        giorno_eng = current.strftime('%A')
+        mese_eng = current.strftime('%B')
+        giorno_num = current.strftime('%d')
+
+        giorno_ita = GIONRI_SETTIMANA.get(giorno_eng, giorno_eng)
+        mese_ita = MESI_ANNO.get(mese_eng, mese_eng)
+
+        giorno_label_text = f"{giorno_ita} {giorno_num} {mese_ita}"
+
+        all_selected = (
+            (giorno_str, "17:30–21:00") in selected and
+            (giorno_str, "20:30–23:30") in selected
+        )
+        giorno_label = f"✅ {giorno_label_text}" if all_selected else f"🗓️ {giorno_label_text}"
+
+        keyboard.append([
+            InlineKeyboardButton(giorno_label, callback_data=f"day|{giorno_str}")
+        ])
+
         day_buttons = []
         for slot in SLOTS:
-            giorno_str = str(current)
             label = f"✅ {slot}" if (giorno_str, slot) in selected else f"⭕ {slot}"
             day_buttons.append(InlineKeyboardButton(label, callback_data=f"disp|{giorno_str}|{slot}"))
-
-        keyboard.append([InlineKeyboardButton(f"🗓️ {current.strftime('%A %d %B')}", callback_data="ignore")])
         keyboard.append(day_buttons)
+
         current += timedelta(days=1)
 
     keyboard.append([
@@ -95,7 +151,20 @@ async def update_pending_availability_message(query, context):
     disponibilita = context.user_data.get("pending_availability", [])
 
     if disponibilita:
-        riepilogo = "\n".join([f"{g} – {f}" for g, f in disponibilita])
+        giorni = {}
+        for giorno, fascia in disponibilita:
+            if giorno not in giorni:
+                giorni[giorno] = []
+            giorni[giorno].append(fascia)
+
+        righe = []
+        for giorno, fasce in sorted(giorni.items()):
+            if len(fasce) == 2:
+                righe.append(f"{giorno} – 17:30–23:30")
+            else:
+                righe.append(f"{giorno} – {fasce[0]}")
+
+        riepilogo = "\n".join(righe)
     else:
         riepilogo = "(nessuna selezione)"
 
@@ -113,12 +182,10 @@ async def confirm_availability(query, context):
     pending = context.user_data.get("pending_availability", [])
 
     if pending:
-        # Elimina vecchie disponibilità
         delete_availabilities_for_user(user.id)
 
-        # Salva le nuove
         for giorno, fascia in pending:
-            save_availability(user.id, giorno, fascia)
+            save_availability(user.id, giorno, fascia, nome_cognome=f"{user.first_name} {user.last_name}")
 
         await query.edit_message_text("✅ Disponibilità confermata!")
         await notify_admin_availability_confirmed(context.bot, user.id)

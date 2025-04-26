@@ -50,12 +50,12 @@ def increment_unknown_count(user_id):
     increment_command_count(user_id, COLUMN_VOL.UNKNOWN)
 
 
-def save_availability(user_id, giorno, fascia):
+def save_availability(user_id, giorno, fascia, nome_cognome=None):
     with get_connection() as conn:
         conn.execute(f"""
-            INSERT OR IGNORE INTO disponibilita ({COLUMN_DISP.TELEGRAM_ID}, {COLUMN_DISP.DISP_GIORNO}, {COLUMN_DISP.DISP_FASCIA})
-            VALUES (?, ?, ?)
-        """, (user_id, giorno, fascia))
+            INSERT OR IGNORE INTO disponibilita ({COLUMN_DISP.TELEGRAM_ID}, {COLUMN_DISP.DISP_GIORNO}, {COLUMN_DISP.DISP_FASCIA}, {COLUMN_DISP.DISP_NOMECOGNOME})
+            VALUES (?, ?, ?, ?)
+        """, (user_id, giorno, fascia, nome_cognome))
         conn.commit()
 
 def delete_availabilities_for_user(user_id):

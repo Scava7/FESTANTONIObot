@@ -15,3 +15,4 @@ class COLUMN_DISP:
     TELEGRAM_ID = "telegram_id"
     DISP_GIORNO = "giorno"
     DISP_FASCIA = "fascia"
+    DISP_NOMECOGNOME = "nome_cognome"
