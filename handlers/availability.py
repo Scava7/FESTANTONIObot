@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
+from telegram.constants import ParseMode
 from datetime import date, timedelta
 from db.database_operations import save_availability, get_user_availabilities, delete_availabilities_for_user
 from handlers.contact_admin import notify_admin_availability_confirmed
@@ -13,7 +14,7 @@ SLOTS = ["17:30–21:00", "20:30–23:30"]
 AVAILABILITY_TIMEOUT = 20 * 60  # 20 minuti
 
 # Dizionario manuale per la traduzione
-GIONRI_SETTIMANA = {
+GIORNI_SETTIMANA = {
     "Monday": "Lunedì",
     "Tuesday": "Martedì",
     "Wednesday": "Mercoledì",
@@ -42,7 +43,6 @@ async def availability(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
 
     context.user_data["pending_availability"] = []
-    context.user_data["availability_message_id"] = None
 
     keyboard = generate_availability_keyboard()
 
@@ -116,7 +116,7 @@ def generate_availability_keyboard(selected=None):
         mese_eng = current.strftime('%B')
         giorno_num = current.strftime('%d')
 
-        giorno_ita = GIONRI_SETTIMANA.get(giorno_eng, giorno_eng)
+        giorno_ita = GIORNI_SETTIMANA.get(giorno_eng, giorno_eng)
         mese_ita = MESI_ANNO.get(mese_eng, mese_eng)
 
         giorno_label_text = f"{giorno_ita} {giorno_num} {mese_ita}"
@@ -181,27 +181,84 @@ async def confirm_availability(query, context):
     user = query.from_user
     pending = context.user_data.get("pending_availability", [])
 
+    # Cancella il messaggio dei pulsanti
+    availability_message_id = context.user_data.get("availability_message_id")
+    if availability_message_id:
+        try:
+            await context.bot.delete_message(chat_id=query.message.chat_id, message_id=availability_message_id)
+        except Exception as e:
+            print(f"Errore cancellazione messaggio conferma: {e}")
+
     if pending:
         delete_availabilities_for_user(user.id)
 
         for giorno, fascia in pending:
-            save_availability(user.id, giorno, fascia, nome_cognome=f"{user.first_name} {user.last_name}")
+            save_availability(user.id, giorno, fascia)
 
-        await query.edit_message_text("✅ Disponibilità confermata!")
+        await query.answer("✅ Disponibilità confermata!", show_alert=False)
+
+        # Prepara riepilogo disponibilità confermata
+        giorni = {}
+        for giorno, fascia in pending:
+            if giorno not in giorni:
+                giorni[giorno] = []
+            giorni[giorno].append(fascia)
+
+        righe = []
+        for giorno, fasce in sorted(giorni.items()):
+            if len(fasce) == 2:
+                righe.append(f"{giorno} – 17:30–23:30")
+            else:
+                righe.append(f"{giorno} – {fasce[0]}")
+
+        riepilogo = "\n".join(righe)
+
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🗓️ Modifica disponibilità", switch_inline_query_current_chat="/disponibilita")]
+        ])
+
+        await context.bot.send_message(
+            chat_id=query.message.chat_id,
+            text=(
+                f"✅ <b>Disponibilità confermata!</b>\n\n"
+                f"<b>Le tue disponibilità sono:</b>\n{riepilogo}\n\n"
+                f"🗓️ Se vuoi modificarle, premi il pulsante qui sotto oppure usa <b>/disponibilita</b>!"
+            ),
+            reply_markup=keyboard,
+            parse_mode=ParseMode.HTML
+        )
+
         await notify_admin_availability_confirmed(context.bot, user.id)
     else:
-        await query.edit_message_text("⚠️ Nessuna disponibilità selezionata.")
+        await query.answer("⚠️ Nessuna disponibilità selezionata.", show_alert=False)
 
+    context.user_data.pop("pending_availability", None)
+    context.user_data.pop("availability_message_id", None)
+
+
+async def cancel_availability_manual(query, context):
+    # Cancella il messaggio dei pulsanti
+    availability_message_id = context.user_data.get("availability_message_id")
+    if availability_message_id:
+        try:
+            await context.bot.delete_message(chat_id=query.message.chat_id, message_id=availability_message_id)
+        except Exception as e:
+            print(f"Errore cancellazione messaggio annulla: {e}")
+
+    await query.answer("❌ Registrazione disponibilità annullata.", show_alert=False)
     context.user_data.pop("pending_availability", None)
     context.user_data.pop("availability_message_id", None)
 
 
 async def cancel_availability(context: ContextTypes.DEFAULT_TYPE):
     chat_id = context.job.chat_id
+
+    # Cancella il messaggio dei pulsanti
+    availability_message_id = context.chat_data.get("availability_message_id")
+    if availability_message_id:
+        try:
+            await context.bot.delete_message(chat_id=chat_id, message_id=availability_message_id)
+        except Exception as e:
+            print(f"Errore cancellazione messaggio timeout: {e}")
+
     await context.bot.send_message(chat_id=chat_id, text="⏳ Tempo scaduto. Registrazione disponibilità annullata.")
-
-
-async def cancel_availability_manual(query, context):
-    await query.edit_message_text("❌ Registrazione disponibilità annullata.")
-    context.user_data.pop("pending_availability", None)
-    context.user_data.pop("availability_message_id", None)

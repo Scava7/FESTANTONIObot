@@ -10,9 +10,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     increment_command_count(user.id, COLUMN_VOL.N_CMD_START)
 
     await update.message.reply_text(
-        "👋 Ciao! Benvenuto nel bot di FestAntonio.\n\n"
-        "Al momento puoi:\n"
-        "• Registrarti come volontario con il comando /registrami\n"
-        "• Contattarmi qui se hai dubbi o proposte /scrivimi\n\n"
-        "Altre funzionalità verranno aggiunte nei prossimi giorni!"
+        "🎉 Benvenuto nel bot ufficiale di *FestAntonio*! 🎉\n\n"
+        "Qui puoi:\n"
+        "👉 /registrami – Unisciti come volontario!\n"
+        "👉 /disponibilita – Segnala quando puoi dare una mano\n"
+        "👉 /scrivimi – Scrivimi direttamente se hai dubbi o proposte\n\n"
+        "🎯 Altre novità in arrivo nei prossimi giorni... resta sintonizzato!"
+        , parse_mode="Markdown"
     )

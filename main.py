@@ -27,6 +27,7 @@ from handlers.availability import handle_availability_response, availability
 from handlers.contact_admin import scrivimi
 from handlers.texts import handle_text_message
 from handlers.cmd_not_available import not_available_yet
+from handlers.admin_broadcast import broadcast_availability
 
 def main():
 
@@ -57,17 +58,22 @@ def main():
 
     # Vari handler
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("broadcast", broadcast_availability))
     app.add_handler(CommandHandler("lista_comandi", lista_comandi))
     app.add_handler(CommandHandler("miei_turni", not_available_yet))
     app.add_handler(CommandHandler("tutti_turni", not_available_yet))
     app.add_handler(CommandHandler("registrami", register_new_volunteer))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_name_input))
     app.add_handler(CommandHandler("getdb", send_db))
     app.add_handler(CommandHandler("ping", ping_ok))
-    app.add_handler(MessageHandler(filters.Document.ALL, receive_db))
     app.add_handler(CommandHandler("disponibilita", availability))
-    app.add_handler(CallbackQueryHandler(handle_availability_response))
     app.add_handler(CommandHandler("scrivimi", scrivimi))
+
+    # ⚡ METTI QUI SUBITO DOPO I COMMAND:
+    app.add_handler(CallbackQueryHandler(handle_availability_response))
+
+    # 📦 SOLO DOPO AGGIUNGI I MESSAGE HANDLER
+    #app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_name_input))
+    app.add_handler(MessageHandler(filters.Document.ALL, receive_db))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_message))
     app.add_handler(MessageHandler(filters.ALL, handle_unknown))
 
@@ -77,14 +83,24 @@ def main():
     app.run_polling()
 
 
+import asyncio
+
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
+        import traceback
+        from telegram import Bot
+
         with open("error.log", "a") as log:
             log.write(traceback.format_exc())
 
-        # Invia il file di log a te (sostituisci il tuo ID)
-        bot = telegram.Bot(token=BOT_TOKEN)
-        with open("error.log", "rb") as log_file:
-            bot.send_document(chat_id=ADMIN_CHAT_ID, document=log_file, filename="error.log")
+        async def send_error_log():
+            bot = Bot(token=BOT_TOKEN)
+            try:
+                with open("error.log", "rb") as log_file:
+                    await bot.send_document(chat_id=ADMIN_CHAT_ID, document=log_file, filename="error.log")
+            except Exception as send_error:
+                print(f"Errore nell'invio del file log: {send_error}")
+
+        asyncio.run(send_error_log())
