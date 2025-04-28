@@ -31,8 +31,6 @@ from handlers.contact_admin import scrivimi
 from handlers.texts import handle_text_message
 from handlers.cmd_not_available import not_available_yet
 from handlers.admin_broadcast import broadcast_availability
-from handlers.reply_users import reply
-from handlers.text_directly_users import text_user, handle_text_user_callback, handle_text_user_message
 
 
 def main():
@@ -72,16 +70,12 @@ def main():
     app.add_handler(CommandHandler("ping", ping_ok))
     app.add_handler(CommandHandler("disponibilita", availability))
     app.add_handler(CommandHandler("scrivimi", scrivimi))
-    app.add_handler(CommandHandler("reply", reply))
-    app.add_handler(CommandHandler("text_user", text_user))
     
     # ⚡ METTI QUI SUBITO DOPO I COMMAND:
     app.add_handler(CallbackQueryHandler(handle_availability_response))
-    app.add_handler(CallbackQueryHandler(handle_text_user_callback, pattern=r"^textuser\|"))
-
     # 📦 SOLO DOPO AGGIUNGI I MESSAGE HANDLER
     #app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_name_input))
-    app.add_handler(MessageHandler(filters.TEXT, handle_text_user_message))
+    #app.add_handler(MessageHandler(filters.TEXT, handle_text_user_message))
     app.add_handler(MessageHandler(filters.Document.ALL, receive_db))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_message))
     app.add_handler(MessageHandler(filters.ALL, handle_unknown))

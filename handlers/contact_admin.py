@@ -12,14 +12,14 @@ async def scrivimi(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Incrementa il contatore dei comandi /scrivimi
     increment_command_count(user.id, COLUMN_VOL.N_CMD_TEXTME)
 
-    context.user_data["awaiting_message"] = True
+    context.user_data["awaiting_admin_message"] = True
     await update.message.reply_text("✉️ Scrivimi il messaggio che vuoi mandare all'organizzatore.")
 
 
 # Gestore dei messaggi in attesa
 async def handle_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    if not context.user_data.get("awaiting_message"):
+    if not context.user_data.get("awaiting_admin_message"):
         return
 
     user = update.effective_user
@@ -42,7 +42,7 @@ async def handle_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=text)
     await update.message.reply_text("✅ Messaggio inviato con successo. Grazie!")
-    context.user_data["awaiting_message"] = False
+    context.user_data["awaiting_admin_message"] = False
 
 
 async def notify_admin_availability_confirmed(bot, user_id):

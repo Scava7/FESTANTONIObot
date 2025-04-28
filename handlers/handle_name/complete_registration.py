@@ -8,7 +8,7 @@ async def handle_name_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return  # Ignora se l'utente non è in fase di registrazione
 
     # Se l'utente ha attivato anche /scrivimi, esce senza gestire qui
-    if context.user_data.get("awaiting_message"):
+    if context.user_data.get("awaiting_admin_message"):
         return
 
     try:
