@@ -33,7 +33,15 @@ async def handle_name_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=info)
 
         # Conferma
-        await update.message.reply_text(f"✅ Registrazione completata. Benvenuto {name} {last_name}!")
+        text = (
+        f"✅ Registrazione completata. Benvenuto {name} {last_name}!"
+        f"Puoi:\n"
+        f"• 🗓️ Segnalare la tua disponibilità con /disponibilita\n"
+        f"• ✉️ Contattare l'organizzatore con /scrivimi\n"
+        f"• 📋 Vedere tutti i comandi con /lista_comandi\n"
+        f"Se hai bisogno di aiuto, non esitare a scrivermi!"
+    )  
+        await update.message.reply_text(text)
 
         # Pulisce lo stato
         context.user_data["awaiting_name"] = False

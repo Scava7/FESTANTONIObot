@@ -13,6 +13,9 @@ from datetime import time, timezone, timedelta
 #Config
 from config import BOT_TOKEN, ADMIN_CHAT_ID
 
+#Error logging
+from log_error.setup_logging import setup_logging
+
 #handlers
 from db.send_daily_db import send_daily_db
 from handlers.handle_name.complete_registration import handle_name_input
@@ -34,9 +37,8 @@ def main():
     import os
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-    import sys
-    open("error.log", "w").close()  # Pialla il file
-    sys.stderr = open("error.log", "a")
+    # Inizializza il logging
+    setup_logging()
 
     # Inizializza il database
     init_db()
