@@ -1,4 +1,4 @@
-from db.database_operations import get_connection
+from db.connection import get_connection
 from constants.constants import COLUMN_VOL, COLUMN_DISP
 import sqlite3
 

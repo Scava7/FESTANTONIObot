@@ -1,7 +1,13 @@
 # db/connection.py
-
+import sqlite3
+import os
 import pymysql
-from config import MYSQL_PASSWORD
+from config import MYSQL_PASSWORD, DB_PATH
+
+def get_connection():
+     # Assicura che la cartella data/ esista
+     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+     return sqlite3.connect(DB_PATH)
 
 def get_mysql_connection():
     return pymysql.connect(

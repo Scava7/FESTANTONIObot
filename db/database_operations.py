@@ -1,6 +1,5 @@
-import sqlite3
-import os
-from config import DB_PATH, ENABLE_TERMINAL_DEBUG
+
+from config import ENABLE_TERMINAL_DEBUG
 from constants.constants import COLUMN_VOL, COLUMN_DISP
 from db.connection import get_connection, get_mysql_connection
 

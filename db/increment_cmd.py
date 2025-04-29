@@ -1,4 +1,4 @@
-from db.database_operations import get_connection
+from db.connection import get_connection
 from constants.constants import COLUMN_VOL
 
 def increment_command_count(user_id, column):
