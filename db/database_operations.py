@@ -109,3 +109,4 @@ def get_all_user_ids():
     with get_connection() as conn:
         cursor = conn.execute("SELECT telegram_id FROM volontari")
         return [row[0] for row in cursor.fetchall()]
+    
