@@ -7,7 +7,8 @@ from db.database_operations import (
     get_user_availabilities, 
     delete_availabilities_for_user, 
     get_user_info, 
-    increment_command_count
+    increment_command_count,
+    volunteer_exists
 )
 from handlers.contact_admin import notify_admin_availability_confirmed
 from constants.constants import COLUMN_VOL
@@ -54,6 +55,12 @@ MESI_ANNO = {
 async def availability(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Gestisce l'inizio della selezione disponibilità."""
     user = update.effective_user
+
+    if not volunteer_exists(user.id):
+        await update.message.reply_text(
+            "⚠️ Devi prima registrarti usando /registrami per poter segnalare la disponibilità."
+        )
+        return
 
     # Incrementa il contatore del comando
     increment_command_count(user.id, COLUMN_VOL.N_CMD_DISP)
