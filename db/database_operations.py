@@ -1,21 +1,14 @@
 import sqlite3
-from config import DB_PATH
 import os
+from config import DB_PATH, ENABLE_TERMINAL_DEBUG
 from constants.constants import COLUMN_VOL, COLUMN_DISP
-
-
-def get_connection():
-    # Assicura che la cartella data/ esista
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    return sqlite3.connect(DB_PATH)
-
+from db.connection import get_connection, get_mysql_connection
 
 def init_db():
     with get_connection() as conn:
         with open("db/schema.sql", "r") as f:
             conn.executescript(f.read())
         conn.commit()
-
 
 def save_volunteer(user, name=None, last_name=None):
     with get_connection() as conn:
@@ -29,12 +22,27 @@ def save_volunteer(user, name=None, last_name=None):
         """, (user.id, name, last_name, user.username))
         conn.commit()
 
+    try:
+        with get_mysql_connection() as mysql_conn:
+            mysql_cursor = mysql_conn.cursor()
+            mysql_cursor.execute("""
+                INSERT INTO volontari (telegram_id, first_name, last_name, telegram_username)
+                VALUES (%s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    first_name = VALUES(first_name),
+                    last_name = VALUES(last_name),
+                    telegram_username = VALUES(telegram_username)
+            """, (user.id, name, last_name, user.username))
+            if ENABLE_TERMINAL_DEBUG:
+                print(f"[DEBUG] MySQL save_volunteer: Telegram ID {user.id} inserito/aggiornato")
+    except Exception as e:
+        if ENABLE_TERMINAL_DEBUG:
+            print(f"[ERROR] MySQL save_volunteer: Telegram ID {user.id} - Errore: {e}")
 
 def volunteer_exists(user_id):
     with get_connection() as conn:
         cursor = conn.execute(f"SELECT 1 FROM volontari WHERE {COLUMN_VOL.TELEGRAM_ID} = ?", (user_id,))
         return cursor.fetchone() is not None
-
 
 def increment_command_count(user_id, column):
     with get_connection() as conn:
@@ -45,10 +53,22 @@ def increment_command_count(user_id, column):
         """, (user_id,))
         conn.commit()
 
+    try:
+        with get_mysql_connection() as mysql_conn:
+            mysql_cursor = mysql_conn.cursor()
+            mysql_cursor.execute(f"""
+                UPDATE volontari
+                SET {column} = {column} + 1
+                WHERE telegram_id = %s
+            """, (user_id,))
+            if ENABLE_TERMINAL_DEBUG:
+                print(f"[DEBUG] MySQL increment_command_count: Telegram ID {user_id} incrementato colonna {column}")
+    except Exception as e:
+        if ENABLE_TERMINAL_DEBUG:
+            print(f"[ERROR] MySQL increment_command_count: Telegram ID {user_id} - Errore: {e}")
 
 def increment_unknown_count(user_id):
     increment_command_count(user_id, COLUMN_VOL.UNKNOWN)
-
 
 def save_availability(user_id, giorno, fascia, nome_cognome=None):
     with get_connection() as conn:
@@ -58,6 +78,19 @@ def save_availability(user_id, giorno, fascia, nome_cognome=None):
         """, (user_id, giorno, fascia, nome_cognome))
         conn.commit()
 
+    try:
+        with get_mysql_connection() as mysql_conn:
+            mysql_cursor = mysql_conn.cursor()
+            mysql_cursor.execute("""
+                INSERT INTO disponibilita (telegram_id, giorno, fascia, nome_cognome)
+                VALUES (%s, %s, %s, %s)
+            """, (user_id, giorno, fascia, nome_cognome))
+            if ENABLE_TERMINAL_DEBUG:
+                print(f"[DEBUG] MySQL save_availability: Disponibilità salvata per Telegram ID {user_id}, Giorno {giorno}, Fascia {fascia}")
+    except Exception as e:
+        if ENABLE_TERMINAL_DEBUG:
+            print(f"[ERROR] MySQL save_availability: Telegram ID {user_id} - Errore: {e}")
+
 def delete_availabilities_for_user(user_id):
     with get_connection() as conn:
         conn.execute(f"""
@@ -66,6 +99,18 @@ def delete_availabilities_for_user(user_id):
         """, (user_id,))
         conn.commit()
 
+    try:
+        with get_mysql_connection() as mysql_conn:
+            mysql_cursor = mysql_conn.cursor()
+            mysql_cursor.execute("""
+                DELETE FROM disponibilita
+                WHERE telegram_id = %s
+            """, (user_id,))
+            if ENABLE_TERMINAL_DEBUG:
+                print(f"[DEBUG] MySQL delete_availabilities_for_user: Cancellate disponibilità per Telegram ID {user_id}")
+    except Exception as e:
+        if ENABLE_TERMINAL_DEBUG:
+            print(f"[ERROR] MySQL delete_availabilities_for_user: Telegram ID {user_id} - Errore: {e}")
 
 def get_user_info(user_id):
     with get_connection() as conn:
@@ -83,7 +128,6 @@ def get_user_info(user_id):
             }
         return {}
 
-
 def get_user_availabilities(user_id):
     with get_connection() as conn:
         cursor = conn.execute(f"""
@@ -92,7 +136,6 @@ def get_user_availabilities(user_id):
             ORDER BY {COLUMN_DISP.DISP_GIORNO}, {COLUMN_DISP.DISP_FASCIA}
         """, (user_id,))
         return cursor.fetchall()
-
 
 def get_all_availabilities_with_names():
     with get_connection() as conn:
@@ -109,4 +152,3 @@ def get_all_user_ids():
     with get_connection() as conn:
         cursor = conn.execute("SELECT telegram_id FROM volontari")
         return [row[0] for row in cursor.fetchall()]
-    
