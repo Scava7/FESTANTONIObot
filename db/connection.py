@@ -1,11 +1,7 @@
 # db/connection.py
 
 import pymysql
-import sqlite3
 from config import MYSQL_PASSWORD
-
-def get_connection():
-    return sqlite3.connect("/path/to/festantonio.db")
 
 def get_mysql_connection():
     return pymysql.connect(
