@@ -1,27 +1,40 @@
-# File Python compilati
+# === File Python compilati ===
 __pycache__/
 *.py[cod]
 *.pyo
 
-# Ambienti virtuali (se li usi)
+# === Ambienti virtuali ===
 env/
 venv/
 
-# File di configurazione locali e segreti
+# === Config locali e segreti ===
 config.py
 config_FESTANTONIObot.py
 .env
 
-# Database locali
+# === Database locali ===
 *.sqlite
 *.db
 
-# File temporanei e di backup
+# === File temporanei e backup ===
 *.log
 *.bak
 *.swp
-.DS_Store
 *.zip
+.DS_Store
 
-# PythonAnywhere editor e cron
-*.py~ 
+# === PythonAnywhere editor e cron ===
+*.py~
+
+# === Migrations non versionate (opzionale) ===
+**/migrations/__pycache__/
+**/migrations/*.pyc
+# Puoi anche ignorare tutte le migrazioni se le vuoi rigenerare ogni volta:
+# **/migrations/
+
+# === Static e media (se gestiti altrove) ===
+/static/
+/media/
+
+# === VS Code ===
+.vscode/
