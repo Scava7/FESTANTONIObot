@@ -25,6 +25,7 @@ async def lista_comandi(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "\n👑 Comandi Admin:\n"
         "⚙️ /getdb – Scarica il database\n"
         "⚙️ /ping – Verifica se il bot è attivo\n"
+        "⚙️ /backupmysql – Backup e invio di Mysql\n"
         #"⚙️ /broadcast – Manda messaggio a tutti\n"
     )
 

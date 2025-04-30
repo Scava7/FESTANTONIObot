@@ -31,6 +31,7 @@ from handlers.contact_admin import scrivimi
 from handlers.texts import handle_text_message
 from handlers.cmd_not_available import not_available_yet
 from handlers.admin_broadcast import broadcast_availability
+from db.backup_mysql import backup_mysql_command
 
 
 def main():
@@ -70,6 +71,7 @@ def main():
     app.add_handler(CommandHandler("ping", ping_ok))
     app.add_handler(CommandHandler("disponibilita", availability))
     app.add_handler(CommandHandler("scrivimi", scrivimi))
+    app.add_handler(CommandHandler("backupmysql", backup_mysql_command))
     
     # ⚡ METTI QUI SUBITO DOPO I COMMAND:
     app.add_handler(CallbackQueryHandler(handle_availability_response))
